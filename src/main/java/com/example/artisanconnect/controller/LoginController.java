@@ -48,9 +48,8 @@ public class LoginController {
     private void redirectToArtisanInterface() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/artisanconnect/view/OrderTracking.fxml"));
         Parent root = loader.load();
-
         OrderTrackingController controller = loader.getController();
-        controller.loadOrder("CMD-TEST"); // Charge la commande test
+        controller.loadOrder("CMD-TEST", "ARTISAN"); // Rôle ARTISAN
 
         Stage stage = (Stage) passwordField.getScene().getWindow();
         stage.setScene(new Scene(root, 800, 600));

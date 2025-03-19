@@ -7,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import java.io.IOException;
 
@@ -15,12 +16,20 @@ public class OrderTrackingController {
     @FXML private Label statusLabel;
     @FXML private ComboBox<OrderStatus> statusComboBox;
     @FXML private PasswordField artisanPasswordField;
+    @FXML private VBox artisanControls; // Conteneur des éléments Artisan
+    @FXML private Label instructionLabel; // Libellé d'instructions
 
     private final String ARTISAN_PASSWORD = "artisan123";
     private Order currentOrder;
 
-    public void loadOrder(String orderId) {
+    public void loadOrder(String orderId, String userRole) { // Ajout du paramètre userRole
         currentOrder = OrderTracker.getInstance().findOrder(orderId);
+        boolean isArtisan = "ARTISAN".equals(userRole);
+
+        // Masquer les éléments Artisan pour les clients
+        artisanControls.setVisible(isArtisan);
+        instructionLabel.setVisible(isArtisan);
+
         if (currentOrder != null) {
             orderIdLabel.setText("Commande #" + currentOrder.getOrderId());
             statusLabel.setText("Statut : " + currentOrder.getStatus());

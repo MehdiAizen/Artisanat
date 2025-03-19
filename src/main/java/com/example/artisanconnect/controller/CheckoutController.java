@@ -14,6 +14,7 @@ public class CheckoutController {
     @FXML private TextField addressField;
     @FXML private TextField cardNumberField;
     @FXML private PasswordField passwordField;
+    @FXML private Button backButton;
 
     private ShoppingCart cart;
     private final String CLIENT_PASSWORD = "client123";
@@ -45,7 +46,7 @@ public class CheckoutController {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/artisanconnect/view/OrderTracking.fxml"));
                 Parent root = loader.load();
                 OrderTrackingController controller = loader.getController();
-                controller.loadOrder(newOrder.getOrderId()); // Envoi de l'ID
+                controller.loadOrder(newOrder.getOrderId(), "CLIENT"); // Rôle CLIENT
 
                 Stage stage = (Stage) fullNameField.getScene().getWindow();
                 stage.setScene(new Scene(root, 800, 600));
@@ -57,22 +58,58 @@ public class CheckoutController {
         }
     }
 
+    @FXML
+    private void handleBack() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/artisanconnect/view/Cart.fxml"));
+            Parent root = loader.load();
+            CartController controller = loader.getController();
+            controller.initialize(null, null);
+
+            Stage stage = (Stage) backButton.getScene().getWindow();
+            stage.setScene(new Scene(root, 800, 600));
+            stage.setTitle("ArtisanConnect - Panier");
+        } catch (IOException e) {
+            showAlert("Erreur", "Impossible de retourner au panier.");
+        }
+    }
+
     private boolean validateForm() {
+        boolean isValid = true;
         String fullName = fullNameField.getText().trim();
         String address = addressField.getText().trim();
-        String cardNumber = cardNumberField.getText().trim();
+        String cardNumber = cardNumberField.getText().trim().replaceAll("\\s+", "");
 
-        if (fullName.isEmpty() || address.isEmpty() || cardNumber.isEmpty()) {
-            showAlert("Champs manquants", "Veuillez remplir tous les champs.");
-            return false;
+        resetFieldStyle(fullNameField, addressField, cardNumberField);
+
+        if (fullName.isEmpty()) {
+            highlightError(fullNameField);
+            isValid = false;
         }
-
+        if (address.isEmpty()) {
+            highlightError(addressField);
+            isValid = false;
+        }
         if (!cardNumber.matches("\\d{16}")) {
-            showAlert("Carte invalide", "Le numéro de carte doit contenir 16 chiffres.");
-            return false;
+            highlightError(cardNumberField);
+            isValid = false;
         }
 
-        return true;
+        if (!isValid) {
+            showAlert("Erreur de formulaire", "Veuillez corriger les champs invalides");
+        }
+
+        return isValid;
+    }
+
+    private void highlightError(TextField field) {
+        field.setStyle("-fx-border-color: #e74c3c; -fx-border-width: 2px;");
+    }
+
+    private void resetFieldStyle(TextField... fields) {
+        for (TextField field : fields) {
+            field.setStyle("-fx-border-color: #bdc3c7; -fx-border-width: 1px;");
+        }
     }
 
     private void showAlert(String title, String message) {
